@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", function () {
       selectedSlot = info.event.extendedProps.slotData;
       
       // Format date for display
-      const eventDate = new Date(selectedSlot.Date);
+      const eventDate = new Date(selectedSlot.Date.includes('T') ? selectedSlot.Date : selectedSlot.Date + 'T12:00:00');
       const formattedDate = eventDate.toLocaleDateString('en-US', {
         weekday: 'long',
         year: 'numeric',
@@ -297,14 +297,18 @@ document.addEventListener("DOMContentLoaded", function () {
     }).filter(event => event !== null); // Remove any failed conversions
   }
   
-  // Extract time from Google Sheets date format (1899-12-30T08:00:00.000Z)
-  function extractTimeFromGoogleDate(dateTimeStr) {
-    // Use regex to extract just the time part (HH:MM)
-    const match = dateTimeStr.match(/T(\d{2}):(\d{2}):/);
-    if (match) {
-      return `${match[1]}:${match[2]}`;
+  // Extract HH:MM from either plain "HH:MM" or legacy ISO "1899-12-30THH:MM:00.000Z"
+  function extractTimeFromGoogleDate(timeStr) {
+    if (!timeStr) return "00:00";
+    // Plain HH:MM format from updated Apps Script
+    if (/^\d{1,2}:\d{2}$/.test(timeStr)) {
+      const [h, m] = timeStr.split(':');
+      return `${h.padStart(2, '0')}:${m}`;
     }
-    return "00:00"; // Fallback
+    // Legacy ISO format fallback
+    const match = String(timeStr).match(/T(\d{2}):(\d{2}):/);
+    if (match) return `${match[1]}:${match[2]}`;
+    return "00:00";
   }
   
   // Format dates for Google Calendar

@@ -55,15 +55,18 @@ document.addEventListener("DOMContentLoaded", function () {
     // Convert slots to FullCalendar events
     const events = slots.map(slot => {
       // Convert date to YYYY-MM-DD
-      const dateObj = new Date(slot.Date);
-      const dateStr = dateObj.toISOString().split('T')[0];
+      const dateStr = slot.Date.includes('T')
+        ? new Date(slot.Date).toISOString().split('T')[0]
+        : slot.Date;
 
-      // Convert time to HH:MM
-      const startTimeObj = new Date(slot["Start Time"]);
-      const endTimeObj = new Date(slot["End Time"]);
+      // Convert time to HH:MM (handles both plain "HH:MM" and legacy ISO strings)
       const pad = n => n.toString().padStart(2, '0');
-      const startTime = pad(startTimeObj.getUTCHours()) + ':' + pad(startTimeObj.getUTCMinutes());
-      const endTime = pad(endTimeObj.getUTCHours()) + ':' + pad(endTimeObj.getUTCMinutes());
+      const parseTime = t => {
+        if (/^\d{1,2}:\d{2}$/.test(t)) { const [h, m] = t.split(':'); return pad(parseInt(h)) + ':' + m; }
+        const d = new Date(t); return pad(d.getUTCHours()) + ':' + pad(d.getUTCMinutes());
+      };
+      const startTime = parseTime(slot["Start Time"]);
+      const endTime = parseTime(slot["End Time"]);
 
       return {
         id: slot.ID,
@@ -90,16 +93,17 @@ document.addEventListener("DOMContentLoaded", function () {
       events: events,
       eventClick: function(info) {
         const slot = info.event.extendedProps.slotData;
-        const eventDate = new Date(slot.Date);
+        const eventDate = new Date(slot.Date.includes('T') ? slot.Date : slot.Date + 'T12:00:00');
         const formattedDate = eventDate.toLocaleDateString('en-US', {
           weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
         });
-        // Use the same conversion for display
-        const startTimeObj = new Date(slot["Start Time"]);
-        const endTimeObj = new Date(slot["End Time"]);
         const pad = n => n.toString().padStart(2, '0');
-        const startTime = pad(startTimeObj.getUTCHours()) + ':' + pad(startTimeObj.getUTCMinutes());
-        const endTime = pad(endTimeObj.getUTCHours()) + ':' + pad(endTimeObj.getUTCMinutes());
+        const parseTime = t => {
+          if (/^\d{1,2}:\d{2}$/.test(t)) { const [h, m] = t.split(':'); return pad(parseInt(h)) + ':' + m; }
+          const d = new Date(t); return pad(d.getUTCHours()) + ':' + pad(d.getUTCMinutes());
+        };
+        const startTime = parseTime(slot["Start Time"]);
+        const endTime = parseTime(slot["End Time"]);
         const name = slot.Name || "(No name)";
         // Show details in a popup
         alert(`Booked by: ${name}\nDate: ${formattedDate}\nTime: ${startTime} - ${endTime}`);
