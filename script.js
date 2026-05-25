@@ -178,8 +178,8 @@ document.addEventListener("DOMContentLoaded", function () {
       const apiUrl = "https://script.google.com/macros/s/AKfycbxk1Q6Za5uNM9J6bXLAERBPvPNV40NiorV3A10MKlxOwUYOfJHEM08S_-2Um0g3kpEH/exec";
       console.log("Fetching slots from API:", apiUrl);
       
-      const response = await fetch(apiUrl);
-      
+      const response = await fetch(apiUrl, { credentials: 'omit' });
+
       if (!response.ok) {
         throw new Error(`API request failed with status ${response.status}`);
       }
