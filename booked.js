@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   async function fetchBookedSlots(code) {
-    const apiUrl = "https://script.google.com/macros/s/AKfycby5YxX8LDJPsb-avThXDSk0DacnWpo05U1QSEGTaotrs0YRZFNOF4Uf5D1-kFG5SzTh1A/exec?accessCode=" + encodeURIComponent(code);
+    const apiUrl = "https://script.google.com/macros/s/AKfycbxk1Q6Za5uNM9J6bXLAERBPvPNV40NiorV3A10MKlxOwUYOfJHEM08S_-2Um0g3kpEH/exec?accessCode=" + encodeURIComponent(code);
     const response = await fetch(apiUrl);
     if (!response.ok) throw new Error("Failed to fetch data from server.");
     const data = await response.json();
@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", function () {
     calendar = new FullCalendar.Calendar(calendarEl, {
       initialView: "timeGridWeek",
       slotMinTime: "08:00:00",
-      slotMaxTime: "21:00:00",
+      slotMaxTime: "22:00:00",
       allDaySlot: false,
       headerToolbar: {
         left: 'prev,next today',

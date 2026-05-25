@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: "timeGridWeek",
     slotMinTime: "08:00:00",
-    slotMaxTime: "21:00:00",
+    slotMaxTime: "22:00:00",
     allDaySlot: false,
     headerToolbar: {
       left: 'prev,next today',
@@ -175,7 +175,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Function to fetch available slots from Google Apps Script
   async function fetchAvailableSlots() {
     try {
-      const apiUrl = "https://script.google.com/macros/s/AKfycbyKMjqTbK46zrMDQaUtAweuf8y7i3VAWo_dG3TyI9prVSajOauQj7VCWDLxm_qbW7wb/exec";
+      const apiUrl = "https://script.google.com/macros/s/AKfycbxk1Q6Za5uNM9J6bXLAERBPvPNV40NiorV3A10MKlxOwUYOfJHEM08S_-2Um0g3kpEH/exec";
       console.log("Fetching slots from API:", apiUrl);
       
       const response = await fetch(apiUrl);
@@ -200,7 +200,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Function to update the Google Sheet with booking information
   async function bookSlot(slotId, name) {
     try {
-      const apiUrl = "https://script.google.com/macros/s/AKfycbyKMjqTbK46zrMDQaUtAweuf8y7i3VAWo_dG3TyI9prVSajOauQj7VCWDLxm_qbW7wb/exec";
+      const apiUrl = "https://script.google.com/macros/s/AKfycbxk1Q6Za5uNM9J6bXLAERBPvPNV40NiorV3A10MKlxOwUYOfJHEM08S_-2Um0g3kpEH/exec";
       console.log(`Booking slot ${slotId} for ${name} via API`);
       
       // Due to CORS limitations with Google Apps Script, we use a workaround
