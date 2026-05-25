@@ -128,7 +128,7 @@ document.addEventListener("DOMContentLoaded", function () {
           });
           
           // Open Google Calendar in a new tab
-          const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Tennis+Lesson+with+Andong&dates=${startISO}/${endISO}&details=Booked+by:+${name}&location=A%26M+Consolidated+High+School+Tennis+Courts%2C+HMRJ%2B7M%2C+College+Station%2C+TX+77840&add=andongch@tamu.edu`;
+          const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Tennis+Lesson+with+Andong&dates=${startISO}/${endISO}&details=Booked+by:+${name}&location=A%26M+Consolidated+High+School+Tennis+Courts%2C+HMRJ%2B7M%2C+College+Station%2C+TX+77840&add=andongch95@gmail.com`;
           console.log("Opening URL:", gcalUrl);
           
           window.open(gcalUrl, '_blank');
@@ -156,7 +156,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const startISO = formatForGCal(dateStr, startTime);
         const endISO = formatForGCal(dateStr, endTime);
         
-        const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Tennis+Lesson+with+Andong&dates=${startISO}/${endISO}&details=Booked+by:+${name}&location=A%26M+Consolidated+High+School+Tennis+Courts%2C+HMRJ%2B7M%2C+College+Station%2C+TX+77840&add=andongch@tamu.edu`;
+        const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Tennis+Lesson+with+Andong&dates=${startISO}/${endISO}&details=Booked+by:+${name}&location=A%26M+Consolidated+High+School+Tennis+Courts%2C+HMRJ%2B7M%2C+College+Station%2C+TX+77840&add=andongch95@gmail.com`;
         window.open(gcalUrl, '_blank');
       });
   });
