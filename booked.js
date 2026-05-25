@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   async function fetchBookedSlots(code) {
-    const apiUrl = "https://script.google.com/macros/s/AKfycbxk1Q6Za5uNM9J6bXLAERBPvPNV40NiorV3A10MKlxOwUYOfJHEM08S_-2Um0g3kpEH/exec?accessCode=" + encodeURIComponent(code);
+    const apiUrl = "https://script.google.com/macros/s/AKfycbwqitSyfODdRzpM5CH153pUVHjMdKIgbuvLwCVivGB15EPKZ4wrpwaPFM3D9_ysdPR2/exec?accessCode=" + encodeURIComponent(code);
     const response = await fetch(apiUrl);
     if (!response.ok) throw new Error("Failed to fetch data from server.");
     const data = await response.json();

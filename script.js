@@ -175,7 +175,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Function to fetch available slots from Google Apps Script
   async function fetchAvailableSlots() {
     try {
-      const apiUrl = "https://script.google.com/macros/s/AKfycbxk1Q6Za5uNM9J6bXLAERBPvPNV40NiorV3A10MKlxOwUYOfJHEM08S_-2Um0g3kpEH/exec";
+      const apiUrl = "https://script.google.com/macros/s/AKfycbwqitSyfODdRzpM5CH153pUVHjMdKIgbuvLwCVivGB15EPKZ4wrpwaPFM3D9_ysdPR2/exec";
       console.log("Fetching slots from API:", apiUrl);
       
       const response = await fetch(apiUrl, { credentials: 'omit' });
@@ -200,7 +200,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Function to update the Google Sheet with booking information
   async function bookSlot(slotId, name) {
     try {
-      const apiUrl = "https://script.google.com/macros/s/AKfycbxk1Q6Za5uNM9J6bXLAERBPvPNV40NiorV3A10MKlxOwUYOfJHEM08S_-2Um0g3kpEH/exec";
+      const apiUrl = "https://script.google.com/macros/s/AKfycbwqitSyfODdRzpM5CH153pUVHjMdKIgbuvLwCVivGB15EPKZ4wrpwaPFM3D9_ysdPR2/exec";
       console.log(`Booking slot ${slotId} for ${name} via API`);
       
       // Due to CORS limitations with Google Apps Script, we use a workaround
