@@ -7,7 +7,23 @@ document.addEventListener("DOMContentLoaded", function () {
   const statusMessage = document.getElementById("status-message");
   
   let selectedSlot = null;
-  
+
+  // Apps Script Web App endpoint (shared by fetch + booking)
+  const API_URL = "https://script.google.com/macros/s/AKfycbwqitSyfODdRzpM5CH153pUVHjMdKIgbuvLwCVivGB15EPKZ4wrpwaPFM3D9_ysdPR2/exec";
+
+  // Cache of already-fetched weeks, keyed by the visible range's start date.
+  // Avoids re-fetching when the user bounces between weeks.
+  const weekCache = new Map();
+
+  // Format a Date as local "YYYY-MM-DD" (avoids the UTC off-by-one that
+  // toISOString() would introduce for the America/Chicago timezone).
+  function toDateStr(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
   // Show loading indicator
   calendarEl.innerHTML = '<div class="text-center p-4">Loading calendar...</div>';
   
@@ -58,28 +74,36 @@ document.addEventListener("DOMContentLoaded", function () {
   
   // Remove all sources first (to clean any previous events)
   calendar.getEventSources().forEach(source => source.remove());
-  
-  // Fetch slots from Google Apps Script
-  fetchAvailableSlots()
-    .then(slots => {
-      if (!slots || slots.length === 0) {
-        showStatusMessage("No available slots found", "warning");
-        return;
-      }
-      
-      // Convert slots to FullCalendar events
-      const events = convertSlotsToEvents(slots);
-      
-      // Add events to calendar
-      calendar.addEventSource(events);
-      
-      // Show success message
-      showStatusMessage(`Loaded ${events.length} available slots`, 'success');
-    })
-    .catch(error => {
-      console.error("Error in fetch handling:", error);
-      showStatusMessage("Failed to load available slots: " + error.message, "error");
-    });
+
+  // Register a function event source. FullCalendar invokes this automatically
+  // on initial render AND on every prev / next / today / view change, passing
+  // the currently-visible date range. We fetch only that week's slots.
+  calendar.addEventSource(function (fetchInfo, successCallback, failureCallback) {
+    const startStr = toDateStr(fetchInfo.start);     // inclusive
+    const endStr = toDateStr(fetchInfo.end);         // exclusive
+
+    // Cache the in-flight PROMISE (not just the resolved result) keyed by week.
+    // FullCalendar may invoke this function several times before the first
+    // (slow) response lands; caching the promise dedupes those into one fetch.
+    if (!weekCache.has(startStr)) {
+      weekCache.set(
+        startStr,
+        fetchAvailableSlots(startStr, endStr).then(slots => convertSlotsToEvents(slots || []))
+      );
+    }
+
+    weekCache.get(startStr)
+      .then(events => {
+        successCallback(events);
+        showStatusMessage(`Loaded ${events.length} available slots`, 'success');
+      })
+      .catch(error => {
+        weekCache.delete(startStr); // allow a retry on next render
+        console.error("Error in fetch handling:", error);
+        showStatusMessage("Failed to load available slots: " + error.message, "error");
+        failureCallback(error);
+      });
+  });
 
   // Handle form submission (booking a slot)
   bookingForm.addEventListener('submit', function(e) {
@@ -138,6 +162,8 @@ document.addEventListener("DOMContentLoaded", function () {
           if (event) {
             event.remove();
           }
+          // Invalidate the cache so a later revisit to this week reflects the booking.
+          weekCache.clear();
         } else {
           showStatusMessage("Sorry, this slot is no longer available or booking failed.", "error");
           // Refresh the calendar to get updated availability
@@ -173,11 +199,14 @@ document.addEventListener("DOMContentLoaded", function () {
   });
   
   // Function to fetch available slots from Google Apps Script
-  async function fetchAvailableSlots() {
+  async function fetchAvailableSlots(startStr, endStr) {
     try {
-      const apiUrl = "https://script.google.com/macros/s/AKfycbwqitSyfODdRzpM5CH153pUVHjMdKIgbuvLwCVivGB15EPKZ4wrpwaPFM3D9_ysdPR2/exec";
+      let apiUrl = API_URL;
+      if (startStr && endStr) {
+        apiUrl += `?start=${encodeURIComponent(startStr)}&end=${encodeURIComponent(endStr)}`;
+      }
       console.log("Fetching slots from API:", apiUrl);
-      
+
       const response = await fetch(apiUrl, { credentials: 'omit' });
 
       if (!response.ok) {
@@ -200,7 +229,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Function to update the Google Sheet with booking information
   async function bookSlot(slotId, name) {
     try {
-      const apiUrl = "https://script.google.com/macros/s/AKfycbwqitSyfODdRzpM5CH153pUVHjMdKIgbuvLwCVivGB15EPKZ4wrpwaPFM3D9_ysdPR2/exec";
+      const apiUrl = API_URL;
       console.log(`Booking slot ${slotId} for ${name} via API`);
       
       // Due to CORS limitations with Google Apps Script, we use a workaround
@@ -243,29 +272,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
   
-  // Function to refresh the calendar with latest data
+  // Function to refresh the calendar with latest data for the visible week.
+  // Clears the cache and lets the function event source re-fetch the current range.
   function refreshCalendar() {
-    // Remove all existing events
-    calendar.getEventSources().forEach(source => source.remove());
-    
-    // Show loading indicator
-    calendarEl.innerHTML = '<div class="text-center p-4">Refreshing calendar...</div>';
-    
-    // Fetch updated slots
-    fetchAvailableSlots()
-      .then(slots => {
-        if (slots && slots.length > 0) {
-          const events = convertSlotsToEvents(slots);
-          calendar.addEventSource(events);
-        } else {
-          showStatusMessage("No available slots found after refresh", "warning");
-        }
-        calendar.render();
-      })
-      .catch(error => {
-        console.error("Error refreshing calendar:", error);
-        showStatusMessage("Failed to refresh calendar data.", "error");
-      });
+    weekCache.clear();
+    calendar.refetchEvents();
   }
   
   // Convert slots from API to FullCalendar events
